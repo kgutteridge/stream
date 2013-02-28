@@ -112,7 +112,6 @@ root privileges to install.
 
 * Streams in Smalltalk: http://wiki.cs.uiuc.edu/PatternStories/FunWithStreams
 * Simon Strandgaards iterator.rb[http://aeditor.rubyforge.org/iterator/files/iterator_rb.html]
-* IterationStyles: http://www.rubygarden.org/ruby?IterationStyles
 
 == Examples
 
