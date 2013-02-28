@@ -87,7 +87,7 @@ There are several concrete classes implementing the stream interface:
 
 The latest version of stream.rb can be found at
 
-* http://rubyforge.org/frs/?group_id=110
+* http://github.com/monora/stream
 
 == Installation
 
@@ -166,9 +166,6 @@ root privileges to install.
 
 == Other Stuff
 
-$Revision$
-$Date$
-
 Author:: Horst Duchene <mailto:monora@rubyforge.org>
-License:: Copyright (c) 2001, 2004 Horst Duchene
+License:: Copyright (c) 2001, 2013 Horst Duchene
 Released under the same license as Ruby
