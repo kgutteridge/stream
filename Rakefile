@@ -7,8 +7,8 @@ rescue Exception
 end
 require 'rake/clean'
 require 'rake/testtask'
-require 'rake/gempackagetask'
-require 'rake/rdoctask'
+require 'rdoc/task'
+require 'rubygems/package_task'
 
 # Determine the current version of the software
 
@@ -29,8 +29,8 @@ task :default => :test
 # Define a test task.
 
 Rake::TestTask.new { |t|
-  #t.libs << "tests"
-  #t.pattern = 'tests/Test*.rb'
+  t.libs << "tests"
+  t.pattern = 'tests/Test*.rb'
   t.verbose = true
 }
 
@@ -67,7 +67,7 @@ rd = Rake::RDocTask.new("rdoc") { |rdoc|
 PKG_FILES = FileList[
   'install.rb',
   '[A-Z]*',
-  'lib/**/*.rb', 
+  'lib/**/*.rb',
   'test/**/*.rb',
   'examples/**/*'
 ]
@@ -76,7 +76,7 @@ if ! defined?(Gem)
   puts "Package Target requires RubyGEMs"
 else
   spec = Gem::Specification.new do |s|
-    
+
     #### Basic information.
 
     s.name = 'stream'
@@ -121,10 +121,6 @@ else
     s.rubyforge_project = "rgl"
   end
 
-  Rake::GemPackageTask.new(spec) do |pkg|
-    #pkg.need_zip = true
-    pkg.need_tar = true
-  end
 end
 
 # Misc tasks =========================================================
