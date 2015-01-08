@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Stream : Stream is a module that defines an interface for external iterators.">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Stream</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/monora/stream">View on GitHub</a>
+
+          <h1 id="project_title">Stream</h1>
+          <h2 id="project_tagline">Stream is a module that defines an interface for external iterators.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/monora/stream/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/monora/stream/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>= Extended External Iterators (forward and backward) {<img src="https://secure.travis-ci.org/monora/stream.png?branch=master" alt="Build Status">}[<a href="https://travis-ci.org/monora/stream">https://travis-ci.org/monora/stream</a>]</p>
+
+<p>== Description</p>
+
+<p>Module Stream defines an interface for external iterators. A stream can be
+seen as an iterator on a sequence of objects x1,...,xn. The state of the
+stream is uniquely determined by the following methods:</p>
+
+<ul>
+<li>at_beginning?</li>
+<li>at_end?</li>
+<li>current</li>
+<li>peek</li>
+</ul>
+
+<p>State changes are done with the following operations:</p>
+
+<ul>
+<li>set_to_begin</li>
+<li>set_to_end</li>
+<li>forward</li>
+<li>backward</li>
+</ul>
+
+<p>With the help of the method current_edge the state of a stream s can be
+exactly defined</p>
+
+<p>s.current_edge == [s.current, s.peek]</p>
+
+<p>If s a stream on [x1,...,xn]. Consider the edges [xi,xi+1] i=1,...,n and
+[x0,x1] and <a href="x0%20and%20xn+1%20are%20helper%20elements%20to%20define%20the%20boundary%0Aconditions">xn,xn+1</a>. Then if s is non empty, the following conditions must be true:</p>
+
+<p>s.at_beginning? &lt;=&gt; s.current_edge == [x0,x1]
+ s.at_end? &lt;=&gt; s.current_edge == [xn,xn+1]
+ s.isEmpty? &lt;=&gt; s.at_beginning? &amp;&amp; s.at_end? &lt;=&gt; s.current_edge == [x0,x1] &lt;=&gt; n = 0
+ s.set_to_end =&gt; s.at_end?
+ s.set_to_begin =&gt; s.at_beginning?</p>
+
+<p>If 0 &lt;= i &lt; n and s.current_edge == [xi, xi+1] , then:</p>
+
+<p>[s.forward, s.current_edge] == [xi+1, [xi+1, xi+2]]</p>
+
+<p>If 1 &lt;= i &lt; n and s.current_edge == [xi, xi+1] , then:</p>
+
+<p>[s.backward, s.current_edge] == [xi, [xi-1, xi]]</p>
+
+<p>The result of peek is the same as of forward without changing state. The result of
+current is the same as of backward without changing state.</p>
+
+<p>Module Stream includes Enumerable implementing #each in the obvious way.</p>
+
+<p>Not every stream needs to implement #backward and #at_beginning? thus being
+not reversable. If they are reversable peek can easily be implemented using
+forward and backward, as is done in module Stream. If a stream is not
+reversable all derived streams provided by the stream module (filter,
+mapping, concatenation) can be used anyway. Explicit or implicit (via peek or
+current) uses of backward would throw a NotImplementedError.</p>
+
+<p>Classes implementing the stream interface must implement the following methods:</p>
+
+<ul>
+<li>basic_forward</li>
+<li><p>basic_backward</p></li>
+<li><p>at_end?</p></li>
+<li>at_beginning?</li>
+</ul>
+
+<p>The methods set_to_end and set_to_begin are by default implemented as:</p>
+
+<p>set_to_end   :  until at_end?; do basic_forward end
+ set_to_begin :  until at_beginning?; do basic_backward end</p>
+
+<p>The methods forward and backward are by default implemented as:</p>
+
+<p>forward:      raise EndOfStreamException if at_end?; basic_forward.
+ backward:   raise EndOfStreamException if at_beginning?; basic_backward</p>
+
+<p>Thus subclasses must only implement <em>four</em> methods. Efficiency sometimes
+demands better implementations.</p>
+
+<p>There are several concrete classes implementing the stream interface:</p>
+
+<ul>
+<li>Stream::EmptyStream (boring)</li>
+<li>Stream::CollectionStream created by the method Array#create_stream</li>
+<li>Stream::FilteredStream created by the method Stream#filtered</li>
+<li>Stream::ReversedStream created by the method Stream#reverse</li>
+<li>Stream::ConcatenatedStream created by the method Stream#concatenate</li>
+<li>Stream::ImplicitStream using closures for the basic methods to implement</li>
+</ul>
+
+<p>== Download</p>
+
+<p>The latest version of stream.rb can be found at</p>
+
+<ul>
+<li><a href="http://github.com/monora/stream">http://github.com/monora/stream</a></li>
+</ul>
+
+<p>== Installation</p>
+
+<p>=== Normal Installation</p>
+
+<p>You can install stream with the following command.</p>
+
+<p>% ruby install.rb</p>
+
+<p>from its distribution directory.</p>
+
+<p>=== GEM Installation</p>
+
+<p>Download the GEM file and install it with ..</p>
+
+<p>gem -i stream-VERSION.gem</p>
+
+<p>Use the correct version number for VERSION (e.g. 0.5).  You may need
+root privileges to install.</p>
+
+<p>== See also</p>
+
+<ul>
+<li>Streams in Smalltalk: <a href="http://wiki.cs.uiuc.edu/PatternStories/FunWithStreams">http://wiki.cs.uiuc.edu/PatternStories/FunWithStreams</a>
+</li>
+<li>Simon Strandgaards iterator.rb[<a href="http://aeditor.rubyforge.org/iterator/files/iterator_rb.html">http://aeditor.rubyforge.org/iterator/files/iterator_rb.html</a>]</li>
+</ul>
+
+<p>== Examples</p>
+
+<p>g = ('a'..'f').create_stream
+  h = (1..10).create_stream
+  i = (10..20).create_stream</p>
+
+<p>until g.at_end? || h.at_end? || i.at_end?
+    p [g.forward, h.forward, i.forward]
+  end</p>
+
+<p>def filestream fname
+    Stream::ImplicitStream.new { |s|
+      f = open(fname)
+      s.at_end_proc = proc {f.eof?}
+      s.forward_proc = proc {f.readline}
+      # Need not implement backward moving to use the framework
+    }
+  end</p>
+
+<p>(filestream("/etc/passwd") + ('a'..'f').create_stream + filestream("/etc/group")).each do |l|
+    puts l
+  end</p>
+
+<p>puts "\nTwo filtered collection streams concatenated and reversed:\n\n"</p>
+
+<p>def newstream; (1..6).create_stream; end
+  s = newstream.filtered { |x| x % 2 == 0 } + newstream.filtered { |x| x % 2 != 0 }
+  s = s.reverse
+  puts "Contents      : #{s.to_a.join ' '}"
+  puts "At end?       : #{s.at_end?}"
+  puts "At beginning? : #{s.at_beginning?}"
+  puts "2xBackwards   : #{s.backward} #{s.backward}"
+  puts "Forward       : #{s.forward}"
+  puts "Peek          : #{s.peek}"
+  puts "Current       : #{s.current}"
+  puts "set_to_begin    : Peek=#{s.set_to_begin;s.peek}"</p>
+
+<p># an infinite stream (do not use set_to_end!)
+  def randomStream
+    Stream::ImplicitStream.new { |s|
+      s.set_to_begin_proc = proc {srand 1234}
+      s.at_end_proc = proc {false}
+      s.forward_proc = proc {rand}
+    }
+  end
+  s = randomStream.filtered { |x| x &gt;= 0.5 }.collect { |x| sprintf("%5.2f ",x*100) }
+  puts "5 random numbers: #{(1..5).collect {|x| s.forward}}\n" # =&gt;</p>
+
+<pre><code>5 random numbers: 74.05 94.80 87.87 86.07 83.70
+</code></pre>
+
+<p>== Other Stuff</p>
+
+<p>Author:: Horst Duchene <a href="mailto:monora@rubyforge.org">monora@rubyforge.org</a>
+License:: Copyright (c) 2001, 2013 Horst Duchene
+Released under the same license as Ruby</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Stream maintained by <a href="https://github.com/monora">monora</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
