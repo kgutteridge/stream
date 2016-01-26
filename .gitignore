@@ -1,3 +1,5 @@
-/.yardoc/
-/doc/
-/stream/
+/doc
+/pkg
+/stream
+.yardoc
+Gemfile.lock

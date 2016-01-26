@@ -1,0 +1,6 @@
+--readme README.rdoc
+--title 'Stream - Extended External Iterators'
+--charset utf-8
+--embed-mixins
+'lib/**/*.rb' - '*.rdoc' 'examples/*.rb'
+

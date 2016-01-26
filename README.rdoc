@@ -1,4 +1,6 @@
-= Extended External Iterators (forward and backward) {<img src="https://secure.travis-ci.org/monora/stream.png?branch=master" alt="Build Status" />}[https://travis-ci.org/monora/stream]
+{<img src="https://secure.travis-ci.org/monora/stream.png?branch=master" alt="Build Status" />}[https://travis-ci.org/monora/stream]
+
+= Extended External Iterators (forward and backward)
 
 == Description
 
@@ -165,6 +167,6 @@ root privileges to install.
 
 == Other Stuff
 
-Author:: Horst Duchene <mailto:monora@rubyforge.org>
-License:: Copyright (c) 2001, 2013 Horst Duchene
+Author:: Horst Duchene
+License:: Copyright (c) 2001, 2013, 2016 Horst Duchene
 Released under the same license as Ruby

@@ -78,7 +78,7 @@ module Stream
 	end
 	nil
   end
-  
+
   # Returns the element returned by the last call of #forward. If at_beginning? is
   # true self is returned.
   def current; at_beginning? ? self : basic_current; end
@@ -110,7 +110,7 @@ module Stream
       yield basic_forward
     end
   end
-  
+
   # create_stream is used for each Enumerable to create a stream for it. A Stream as
   # an Enumerable returns itself.
   def create_stream; self end
@@ -163,7 +163,7 @@ module Stream
 	protected
 
 	# basic_current and basic_peek can be implemented more efficiently than in
-	# superclass 
+	# superclass
 	def basic_current; @seq[@pos]; end
 	def basic_peek; @seq[@pos+1]; end
 
@@ -263,7 +263,7 @@ module Stream
 
 	def basic_forward
 	  result =
-		if @peek.nil? 
+		if @peek.nil?
 		  wrapped_stream.move_forward_until(&@filter)
 		else
 		  # Do not move!!
@@ -326,7 +326,7 @@ module Stream
 	# Sets the wrapped stream to the beginning.
 	def set_to_end; wrapped_stream.set_to_begin; end
 	# Sets the wrapped stream to the end.
-	def set_to_begin; wrapped_stream.set_to_end; end  
+	def set_to_begin; wrapped_stream.set_to_end; end
   end
 
   ##
@@ -416,18 +416,18 @@ module Stream
 		  reachedBoundary
 		end
   	end
-  	
+
 	def set_to_begin; super; reachedBoundary end
 	def set_to_end; super; reachedBoundary end
 
 	# Returns the next element of @currentStream. at_end? ensured that there is one.
 	def basic_forward; @currentStream.basic_forward end
 	# Returns the previous element of @currentStream. at_beginning? ensured that
-	# there is one. 
+	# there is one.
 	def basic_backward; @currentStream.basic_backward end
 
 	private
-	
+
 	def reachedBoundary
 	  @currentStream = EmptyStream.instance
 	  @dirOfLastMove = :none	# not :forward or :backward
@@ -438,12 +438,12 @@ module Stream
 
   # An ImplicitStream is an easy way to create a stream on the fly without defining a
   # subclass of BasicStream. The basic methods required for a stream are defined with
-  # blocks: 
+  # blocks:
   #
   #  s = Stream::ImplicitStream.new { |s|
   #		x = 0
-  #		s.at_end_proc = proc {x == 5}
-  #		s.forward_proc = proc {x += 1 }
+  #		s.at_end_proc = proc { x == 5 }
+  #		s.forward_proc = proc { x += 1 }
   #	 }
   #
   #  s.to_a ==> [1, 2, 3, 4, 5]
@@ -487,7 +487,7 @@ module Stream
 	def at_beginning?; @at_beginning_proc.call; end
 	# Returns the value of @at_end_proc.
 	def at_end?; @at_end_proc.call; end
-	
+
 	# Returns the value of @forward_proc.
 	def basic_forward; @forward_proc.call; end
 	# Returns the value of @backward_proc_proc.
@@ -513,7 +513,7 @@ module Stream
 
   # Create a Stream::ReversedStream wrapper on self.
   def reverse; ReversedStream.new self; end
-  
+
   # Create a Stream::MappedStream wrapper on self. Instead of returning the stream
   # element on each move, the value of calling _mapping_ is returned instead. See
   # Stream::MappedStream for examples.
@@ -524,7 +524,7 @@ module Stream
 
   # Create a Stream::ConcatenatedStream, concatenated from streams build with the
   # block for each element of self:
-  # 
+  #
   #  s = [1, 2, 3].create_stream.concatenate_collected { |i|
   #    [i,-i].create_stream
   #  }.
