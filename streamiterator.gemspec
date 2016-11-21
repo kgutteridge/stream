@@ -44,5 +44,5 @@ Gem::Specification.new do |s|
 
   s.authors           = [ "Horst Duchene" ]
   s.email             = "monora@gmail.com"
-  s.homepage          = "https://github.com/monora/stream"
+  s.homepage          = "https://github.com/kgutteridge/stream"
 end
