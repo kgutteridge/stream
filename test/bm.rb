@@ -1,11 +1,11 @@
 require "benchmark"
-require "stream"
+require "streamiterator"
 require "generator"
 
 include Benchmark
 
 a =(1..5000).to_a
-s = a.create_stream
+s = a.create_stream_iterator
 n = 10
 g = Generator.new a
 

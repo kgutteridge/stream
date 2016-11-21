@@ -1,11 +1,11 @@
 $:.unshift File.join(File.dirname(__FILE__), 'lib')
-require 'stream'
+require 'streamiterator'
 
 Gem::Specification.new do |s|
-  s.name    = 'Stream'
-  s.version = STREAM_VERSION
-  s.summary = "Stream - Extended External Iterators"
-  s.description = "Module Stream defines an interface for external iterators."
+  s.name    = 'Streamiterator'
+  s.version = STREAM_ITERATOR_VERSION
+  s.summary = "Streamiterator - Extended External Iterators"
+  s.description = "Module Streamiterator defines an interface for external iterators."
 
   #### Dependencies and requirements.
 
@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   #### Load-time details: library and application (you will need one or both).
 
   s.require_path = 'lib'
-  s.autorequire  = 'stream'
+  s.autorequire  = 'streamiterator'
 
   #### Documentation and testing.
 

@@ -1,9 +1,9 @@
-require 'stream'
+require 'streamiterator'
 
 # Example from knu's Generator.rb
-g = ('a'..'f').create_stream
-h = (1..10).create_stream
-i = (10..20).create_stream
+g = ('a'..'f').create_stream_iterator
+h = (1..10).create_stream_iterator
+i = (10..20).create_stream_iterator
 
 until g.at_end? || h.at_end? || i.at_end?
   p [g.forward, h.forward, i.forward]
@@ -12,7 +12,7 @@ end
 puts "Concatenate Filestreams and collection stream:\n"
 
 def fs fname
-  Stream::ImplicitStream.new { |s|
+  Streamiterator::ImplicitStreamiterator.new { |s|
 	f = open(fname)
 	s.at_end_proc = proc {f.eof?}
 	s.forward_proc = proc {f.readline}
@@ -20,13 +20,13 @@ def fs fname
   }
 end
 
-(fs("/etc/passwd") + ('a'..'f').create_stream + fs("/etc/group")).each do |l|
+(fs("/etc/passwd") + ('a'..'f').create_stream_iterator + fs("/etc/group")).each do |l|
 	puts l
 end
 
 puts "\nTwo filtered collection streams concatenated and reversed:\n\n"
 
-def newstream; (1..6).create_stream; end
+def newstream; (1..6).create_stream_iterator; end
 s = newstream.filtered { |x| x % 2 == 0 } \
 		+ newstream.filtered { |x| x % 2 != 0 }
 s = s.reverse
@@ -41,7 +41,7 @@ puts "set_to_begin    : Peek=#{s.set_to_begin;s.peek}"
 
 # an infinite stream (do not use set_to_end!)
 def randomStream
-  Stream::ImplicitStream.new { |s|
+  Streamiterator::ImplicitStreamiterator.new { |s|
 	  s.set_to_begin_proc = proc {srand 1234}
 	  s.at_end_proc = proc {false}
 	  s.forward_proc = proc {rand}

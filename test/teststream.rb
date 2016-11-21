@@ -1,12 +1,12 @@
 require 'test/unit'
-require 'stream'
+require 'streamiterator'
 
 module StreamExamples
-  def new_collection_stream; (1..5).create_stream; end
+  def new_collection_stream; (1..5).create_stream_iterator; end
 
   # a stream which is aquivalent to new_collection_stream
   def new_implicit_stream
-    s = Stream::ImplicitStream.new { |s|
+    s = Streamiterator::ImplicitStreamiterator.new { |s|
 	  x = 0
       s.at_beginning_proc = proc {x < 1}
       s.at_end_proc = proc {x == 5}
@@ -26,8 +26,8 @@ module StreamExamples
   end
 
   def new_concatenated_stream
-	[1, 2, 3].create_stream.concatenate_collected { |i|
-	  [i,-i].create_stream
+	[1, 2, 3].create_stream_iterator.concatenate_collected { |i|
+	  [i,-i].create_stream_iterator
 	}
   end
 
@@ -38,29 +38,29 @@ module StreamExamples
 	  new_collection_stream.remove_first,
 	  new_collection_stream.remove_last,
 	  new_collection_stream.remove_first.remove_last,
-	  Stream::WrappedStream.new(new_collection_stream),
-	  Stream::IntervalStream.new(6),
-	  Stream::IntervalStream.new(1),
+	  Streamiterator::WrappedStreamiterator.new(new_collection_stream),
+	  Streamiterator::IntervalStreamiterator.new(6),
+	  Streamiterator::IntervalStreamiterator.new(1),
 	  new_collection_stream.collect { |x| x * 2 },
 
 	  # Some concatenated streams
-	  Stream::EmptyStream.instance.concatenate,
+	  Streamiterator::EmptyStreamiterator.instance.concatenate,
 	  new_concatenated_stream,
 	  # concatenated inside concatenated
 	  new_concatenated_stream + new_concatenated_stream,
-	  new_collection_stream + Stream::EmptyStream.instance,
-	  Stream::EmptyStream.instance + new_collection_stream
+	  new_collection_stream + Streamiterator::EmptyStreamiterator.instance,
+	  Streamiterator::EmptyStreamiterator.instance + new_collection_stream
 	].concat(filtered_streams)
   end
 
   private
 
   def standard_tests_for(s)
-    arrayStream = s.to_a.create_stream	# A collection stream that should be OK
+    arrayStream = s.to_a.create_stream_iterator	# A collection stream that should be OK
     assert_equal(s.to_a, arrayStream.to_a)
     # Tests at end of stream
     assert_equal(s.at_end?, arrayStream.at_end?)
-    assert_raises(Stream::EndOfStreamException) {s.forward}
+    assert_raises(Streamiterator::EndOfStreamiteratorException) {s.forward}
     assert_equal(s.at_beginning?, arrayStream.at_beginning?)
     assert_equal(s.peek,s)
     unless arrayStream.at_beginning?
@@ -71,7 +71,7 @@ module StreamExamples
     
     # Tests at begin of stream
     s.set_to_begin; arrayStream.set_to_begin
-    assert_raises(Stream::EndOfStreamException) {s.backward}
+    assert_raises(Streamiterator::EndOfStreamiteratorException) {s.backward}
     assert_equal(s.at_beginning?,arrayStream.at_beginning?)
     assert_equal(s.at_end?,arrayStream.at_end?)
     assert_equal(s.current,s)
@@ -100,7 +100,7 @@ class TestStream < Test::Unit::TestCase
     s = new_collection_stream
     assert_equal([1, 2, 3, 4, 5], s.entries)
     assert(s.at_end?)
-	assert_raises(Stream::EndOfStreamException) {s.forward}
+	assert_raises(Streamiterator::EndOfStreamiteratorException) {s.forward}
     assert_equal(5, s.backward)
     assert_equal(5, s.forward)
     assert_equal(5, s.current)
@@ -108,7 +108,7 @@ class TestStream < Test::Unit::TestCase
 
     s.set_to_begin
     assert(s.at_beginning?)
-	assert_raises(Stream::EndOfStreamException) {s.backward}
+	assert_raises(Streamiterator::EndOfStreamiteratorException) {s.backward}
     assert_equal(s, s.current)
     assert_equal(1, s.peek)
     assert_equal(1, s.forward)
@@ -140,13 +140,13 @@ class TestStream < Test::Unit::TestCase
   end
 
   def test_filtered_stream
-    [(1..6).create_stream.filtered {|x| x % 2 == 0 }].each do |s| 
+    [(1..6).create_stream_iterator.filtered {|x| x % 2 == 0 }].each do |s| 
 	  standard_tests_for(s)
 	end
   end
 
   def test_interval_stream
-	s = Stream::IntervalStream.new 6
+	s = Streamiterator::IntervalStreamiterator.new 6
 	standard_tests_for(s)
 	assert_equal([0, 1, 2, 3, 4, 5], s.entries)
 	s.increment_stop
@@ -156,7 +156,7 @@ class TestStream < Test::Unit::TestCase
   end
 
   def test_enumerable_protocol
-	s = [1, 2, 3, 4, 5].create_stream
+	s = [1, 2, 3, 4, 5].create_stream_iterator
 	assert(s.include?(2))
 	assert_equal(3,s.detect {|x| x > 2})
 	assert_equal(nil,s.detect {|x| x < 0})
@@ -165,13 +165,13 @@ class TestStream < Test::Unit::TestCase
 
   def test_modified_stream
 	a = [1,2,3]
-	assert_equal([2,3],a.create_stream.remove_first.to_a)
-	assert_equal([1,2],a.create_stream.remove_last.to_a)
-	assert_raises(Stream::EndOfStreamException) {
-	  [1].create_stream.remove_last.forward
+	assert_equal([2,3],a.create_stream_iterator.remove_first.to_a)
+	assert_equal([1,2],a.create_stream_iterator.remove_last.to_a)
+	assert_raises(Streamiterator::EndOfStreamiteratorException) {
+	  [1].create_stream_iterator.remove_last.forward
 	}
-	assert_raises(Stream::EndOfStreamException) {
-	  [1].create_stream.remove_first.forward
+	assert_raises(Streamiterator::EndOfStreamiteratorException) {
+	  [1].create_stream_iterator.remove_first.forward
 	}
   end
 end

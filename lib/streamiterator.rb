@@ -1,4 +1,4 @@
-STREAM_VERSION = "0.5.1"
+STREAM_ITERATOR_VERSION = "0.5.2"
 
 ##
 # Module Stream defines an interface for an external Iterator which
@@ -6,12 +6,12 @@ STREAM_VERSION = "0.5.1"
 #
 # The functionality is similar to Smalltalk's ReadStream.
 
-module Stream
+module Streamiterator
   include Enumerable
 
   # This exception is raised when the Stream is requested to move past
   # the end or beginning.
-  class EndOfStreamException < StandardError; end
+  class EndOfStreamiteratorException < StandardError; end
 
   # Returns false if the next #forward will return an element.
   def at_end?; raise NotImplementedError; end
@@ -22,14 +22,14 @@ module Stream
   # Move forward one position. Returns the _target_ of current_edge.
   # Raises Stream::EndOfStreamException if at_end? is true.
   def forward
-    raise EndOfStreamException if at_end?
+    raise EndOfStreamiteratorException if at_end?
     basic_forward
   end
 
   # Move backward one position. Returns the _source_ of current_edge. Raises
   # Stream::EndOfStreamException if at_beginning? is true.
   def backward
-    raise EndOfStreamException if at_beginning?
+    raise EndOfStreamiteratorException if at_beginning?
     basic_backward
   end
 
@@ -113,7 +113,7 @@ module Stream
 
   # create_stream is used for each Enumerable to create a stream for it. A
   # Stream as an Enumerable returns itself.
-  def create_stream; self end
+  def create_stream_iterator; self end
 
   # A Stream::WrappedStream should return the wrapped stream unwrapped. If the
   # stream is not a wrapper around another stream it simply returns itself.
@@ -121,13 +121,13 @@ module Stream
 
   # The abstract super class of all concrete Classes implementing the Stream
   # interface. Only used for including module Stream.
-  class BasicStream
-	  include Stream
+  class BasicStreamiterator
+	  include Streamiterator
   end
 
   # A Singleton class for an empty stream. EmptyStream.instance is the sole
   # instance which answers true for both at_end? and at_beginning?
-  class EmptyStream < BasicStream
+  class EmptyStreamiterator < BasicStreamiterator
 	  require 'singleton'
 	  include Singleton
 
@@ -141,7 +141,7 @@ module Stream
   #
   # A CollectionStream for an array is created by the method
   # Array#create_stream.
-  class CollectionStream < BasicStream
+  class CollectionStreamiterator < BasicStreamiterator
 	  attr_reader :pos
 
 	  # Creates a new CollectionStream for the indexable sequence _seq_.
@@ -178,7 +178,7 @@ module Stream
   #
   # The upper bound is stored in the instance variable @stop which can be
   # incremented dynamically by the method increment_stop.
-  class IntervalStream < BasicStream
+  class IntervalStreamiterator < BasicStreamiterator
 	  attr_reader :pos
 
 	  # Create a new IntervalStream with upper bound _stop_. stop - 1 is the last
@@ -210,26 +210,26 @@ module Stream
   #
   #  arrayStream.to_a => [1,2,3]
   #  Stream::WrappedStream.new(arrayStream).to_a => [1,2,3]
-  class WrappedStream < BasicStream
-	  attr_reader :wrapped_stream
+  class WrappedStreamiterator < BasicStreamiterator
+	  attr_reader :wrapped_stream_iterator
 
 	  # Create a new WrappedStream wrapping the Stream _otherStream_.
 	  def initialize (otherStream)
-	    @wrapped_stream = otherStream
+	    @wrapped_stream_iterator = otherStream
 	  end
 
-	  def at_beginning?; @wrapped_stream.at_beginning?; end
-	  def at_end?; @wrapped_stream.at_end?; end
+	  def at_beginning?; @wrapped_stream_iterator.at_beginning?; end
+	  def at_end?; @wrapped_stream_iterator.at_end?; end
 
-	  def set_to_end; @wrapped_stream.set_to_end; end
-	  def set_to_begin; @wrapped_stream.set_to_begin; end
+	  def set_to_end; @wrapped_stream_iterator.set_to_end; end
+	  def set_to_begin; @wrapped_stream_iterator.set_to_begin; end
 
 	  # Returns the wrapped stream unwrapped.
-	  def unwrapped; @wrapped_stream.unwrapped; end
+	  def unwrapped; @wrapped_stream_iterator.unwrapped; end
 
 	  public # but should be protected. Would like to have a friend concept here.
-	  def basic_forward; @wrapped_stream.basic_forward; end
-	  def basic_backward;  @wrapped_stream.basic_backward; end
+	  def basic_forward; @wrapped_stream_iterator.basic_forward; end
+	  def basic_backward;  @wrapped_stream_iterator.basic_backward; end
   end
 
   ##
@@ -239,14 +239,14 @@ module Stream
   # A FilteredStream is created by the method #filtered:
   #
   #  (1..6).create_stream.filtered { |x| x % 2 == 0 }.to_a ==> [2, 4, 6]
-  class FilteredStream < WrappedStream
+  class FilteredStreamiterator < WrappedStreamiterator
 
 	  # Create a new FilteredStream wrapping _otherStream_ and selecting all its
 	  # elements which satisfy the condition defined by the block_filter_.
 	  def initialize (otherStream, &filter)
 	    super otherStream
 	    @filter = filter
-	    @positionHolder = IntervalStream.new
+	    @positionHolder = IntervalStreamiterator.new
 	    set_to_begin
 	  end
 
@@ -257,7 +257,7 @@ module Stream
 	    @positionHolder.at_end? and
 		    begin
 		      if @peek.nil?
-			      @peek = wrapped_stream.move_forward_until( &@filter ) or return true
+			      @peek = wrapped_stream_iterator.move_forward_until( &@filter ) or return true
 			      @positionHolder.increment_stop
 		      end
 		      false
@@ -267,7 +267,7 @@ module Stream
 	  def basic_forward
 	    result =
 		    if @peek.nil?
-		      wrapped_stream.move_forward_until(&@filter)
+		      wrapped_stream_iterator.move_forward_until(&@filter)
 		    else
 		      # Do not move!!
 		      @peek
@@ -278,10 +278,10 @@ module Stream
 	  end
 
 	  def basic_backward
-	    wrapped_stream.backward unless @peek.nil?
+	    wrapped_stream_iterator.backward unless @peek.nil?
 	    @peek = nil
 	    @positionHolder.backward
-	    wrapped_stream.move_backward_until(&@filter) or self
+	    wrapped_stream_iterator.move_backward_until(&@filter) or self
 	  end
 
 	  def set_to_end
@@ -306,7 +306,7 @@ module Stream
   # A ReversedStream is created by the method #reverse:
   #
   #  (1..6).create_stream.reverse.to_a ==> [6, 5, 4, 3, 2, 1]
-  class ReversedStream < WrappedStream
+  class ReversedStreamiterator < WrappedStreamiterator
 
 	  # Create a reversing wrapper for the reversable stream _otherStream_. If
 	  # _otherStream_ does not support backward moving a NotImplementedError is
@@ -317,19 +317,19 @@ module Stream
 	  end
 
 	  # Returns true if the wrapped stream is at_end?.
-	  def at_beginning?; wrapped_stream.at_end?; end
+	  def at_beginning?; wrapped_stream_iterator.at_end?; end
 	  # Returns true if the wrapped stream is at_beginning?.
-	  def at_end?; wrapped_stream.at_beginning?; end
+	  def at_end?; wrapped_stream_iterator.at_beginning?; end
 
 	  # Moves the wrapped stream one step backward.
-	  def basic_forward; wrapped_stream.basic_backward; end
+	  def basic_forward; wrapped_stream_iterator.basic_backward; end
 	  # Moves the wrapped stream one step forward.
-	  def basic_backward; wrapped_stream.basic_forward; end
+	  def basic_backward; wrapped_stream_iterator.basic_forward; end
 
 	  # Sets the wrapped stream to the beginning.
-	  def set_to_end; wrapped_stream.set_to_begin; end
+	  def set_to_end; wrapped_stream_iterator.set_to_begin; end
 	  # Sets the wrapped stream to the end.
-	  def set_to_begin; wrapped_stream.set_to_end; end
+	  def set_to_begin; wrapped_stream_iterator.set_to_end; end
   end
 
   ##
@@ -340,7 +340,7 @@ module Stream
   #  (1..5).create_stream.collect {|x| x**2}.type ==> Stream::MappedStream
   #  (1..5).collect {|x| x**2} ==> [1, 4, 9, 16, 25]
   #  (1..5).create_stream.collect {|x| x**2}.to_a ==> [1, 4, 9, 16, 25]
-  class MappedStream < WrappedStream
+  class MappedStreamiterator < WrappedStreamiterator
 
 	  ##
 	  # Creates a new MappedStream wrapping _otherStream_ which calls the block
@@ -365,8 +365,8 @@ module Stream
   # stream of streams or by the method + which concatenats two streams:
   #
   #  ((1..3).create_stream + [4,5].create_stream).to_a ==> [1, 2, 3, 4, 5]
-  class ConcatenatedStream < WrappedStream
-	  alias :streamOfStreams :wrapped_stream
+  class ConcatenatedStreamiterator < WrappedStreamiterator
+	  alias :streamOfStreams :wrapped_stream_iterator
 	  private :streamOfStreams
 
 	  # Creates a new ConcatenatedStream wrapping the stream of streams
@@ -434,7 +434,7 @@ module Stream
 	  private
 
 	  def reachedBoundary
-	    @currentStream = EmptyStream.instance
+	    @currentStream = EmptyStreamiterator.instance
 	    @dirOfLastMove = :none	# not :forward or :backward
 	    true
 	  end
@@ -461,10 +461,10 @@ module Stream
   # which is for example used in the methods for creating stream wrappers which
   # remove the first or last element of an existing stream (see remove_first
   # and remove_last).
-  class ImplicitStream < BasicStream
+  class ImplicitStreamiterator < BasicStreamiterator
 	  attr_writer :at_beginning_proc, :at_end_proc, :forward_proc,
                 :backward_proc, :set_to_begin_proc, :set_to_end_proc
-	  attr_reader :wrapped_stream
+	  attr_reader :wrapped_stream_iterator
 
 	  # Create a new ImplicitStream which might wrap an existing stream
 	  # _otherStream_. If _otherStream_ is supplied the blocks for the basic
@@ -515,19 +515,19 @@ module Stream
   ##
   # Return a Stream::FilteredStream which iterates over all my elements
   # satisfying the condition specified  by the block.
-  def filtered (&block); FilteredStream.new(self,&block); end
+  def filtered (&block); FilteredStreamiterator.new(self,&block); end
 
   # Create a Stream::ReversedStream wrapper on self.
-  def reverse; ReversedStream.new self; end
+  def reverse; ReversedStreamiterator.new self; end
 
   # Create a Stream::MappedStream wrapper on self. Instead of returning the
   # stream element on each move, the value of calling _mapping_ is returned
   # instead. See Stream::MappedStream for examples.
-  def collect (&mapping); MappedStream.new(self, &mapping); end
+  def collect (&mapping); MappedStreamiterator.new(self, &mapping); end
 
   # Create a Stream::ConcatenatedStream on self, which must be a stream of
   # streams.
-  def concatenate; ConcatenatedStream.new self; end
+  def concatenate; ConcatenatedStreamiterator.new self; end
 
   # Create a Stream::ConcatenatedStream, concatenated from streams build with
   # the block for each element of self:
@@ -544,14 +544,14 @@ module Stream
   #  (%w(a b c).create_stream + [4,5].create_stream).to_a
   #  ==> ["a", "b", "c", 4, 5]
   def + (otherStream)
-	  [self, otherStream].create_stream.concatenate
+	  [self, otherStream].create_stream_iterator.concatenate
   end
 
   # Create a Stream::ImplicitStream which wraps the receiver stream by modifying
   # one or more basic methods of the receiver. As an example the method
   # remove_first uses #modify to create an ImplicitStream which filters the
   # first element away.
-  def modify (&block); ImplicitStream.new(self, &block); end
+  def modify (&block); ImplicitStreamiterator.new(self, &block); end
 
   # Returns a Stream::ImplicitStream wrapping a Stream::FilteredStream, which
   # eliminates the first element of the receiver.
@@ -582,15 +582,15 @@ end
 # and size.
 class Array
   # Creates a new Stream::CollectionStream on self.
-  def create_stream
-    Stream::CollectionStream.new self
+  def create_stream_iterator
+    Streamiterator::CollectionStreamiterator.new self
   end
 end
 
 module Enumerable
   # If not an array the enumerable is converted to an array and then
   # to a stream using a Stream::CollectionStream.
-  def create_stream
-    to_a.create_stream
+  def create_stream_iterator
+    to_a.create_stream_iterator
   end
 end

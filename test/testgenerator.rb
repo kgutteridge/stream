@@ -2,7 +2,7 @@ require 'test/unit'
 require 'generator2stream'
 
 class TestGenerator < Test::Unit::TestCase
-  include Stream
+  include Streamiterator
 
   def test_generator
 	# Use WrappedStream to ensure that the stream protocol is used and
@@ -13,12 +13,12 @@ class TestGenerator < Test::Unit::TestCase
 	  end
 	  g.yield 0
 	}
-	assert_equal([1, 2, 3, 0], WrappedStream.new(g).to_a)
+	assert_equal([1, 2, 3, 0], WrappedStreamiterator.new(g).to_a)
 	
 	# Generators are not reversable
 	assert_raises(NotImplementedError) {g.reverse.first}
 
 	a = (1..10).to_a
-	assert_equal(a, WrappedStream.new(Generator.new(a)).to_a)
+	assert_equal(a, WrappedStreamiterator.new(Generator.new(a)).to_a)
   end
 end

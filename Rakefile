@@ -9,7 +9,7 @@ require 'rake/clean'
 require 'yard'
 
 $:.unshift File.join(File.dirname(__FILE__), 'lib')
-require 'stream' # require module to STREAM_VERSION
+require 'streamiterator' # require module to STREAM_VERSION
 
 SRC_RB = FileList['lib/*.rb']
 

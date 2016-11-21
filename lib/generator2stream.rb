@@ -1,5 +1,5 @@
 # Let a Generator look like a Stream.
-require 'stream'
+require 'streamiterator'
 require 'generator'
 
 # The generator is made a Stream by aliasing
@@ -9,7 +9,7 @@ require 'generator'
 # Be careful if you already use a version of Akinori MUSHAs generator.rb. Check out
 # the version numbers of the one you use and the one comming with the stream package.
 class Generator
-  include Stream
+  include Streamiterator
 
   alias_method :at_end?, :end?
   alias_method :basic_forward, :next
@@ -17,6 +17,6 @@ class Generator
   alias_method :set_to_begin, :rewind
 
   # Returns the generator itself.
-  def create_stream; self; end
+  def create_stream_iterator; self; end
 end
   

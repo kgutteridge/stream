@@ -3,10 +3,10 @@
 # See: (http://ruby-fltk.sourceforge.net/)
 #
 require 'fltk'
-require 'stream'
+require 'streamiterator'
 
 class StreamTester < Fltk::Window
-  include Stream
+  include Streamiterator
   def initialize (s)
 	super(200,200)
 	@stream = s
@@ -29,7 +29,7 @@ class StreamTester < Fltk::Window
   def sendMsg(m)
 	begin
 	  @stream.send(m).inspect
-	rescue EndOfStreamException => msg
+	rescue EndOfStreamiteratorException => msg
 	  msg
 	end
   end
