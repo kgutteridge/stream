@@ -2,7 +2,7 @@ $:.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'streamiterator'
 
 Gem::Specification.new do |s|
-  s.name    = 'Streamiterator'
+  s.name    = 'streamiterator'
   s.version = STREAM_ITERATOR_VERSION
   s.summary = "Streamiterator - Extended External Iterators"
   s.description = "Module Streamiterator defines an interface for external iterators."
